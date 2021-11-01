@@ -4,8 +4,8 @@ var STARTSCREEN = 1;
 var screenState = MENUSCREEN;
 
 let countries = [];
-let bestPath;
-let numberOfCountries = 5;
+let bestDistance;
+let numberOfCountries = 4;
 
 function setup() {
   //setting up the full screen
@@ -16,7 +16,9 @@ function setup() {
   }
 
   let distance = getDistance(countries);
-  bestPath = distance;
+  bestDistance = distance;
+  bestPath = countries.slice();
+
 }
 
 
@@ -44,9 +46,6 @@ function drawMenu() {
 }
 
 function drawStart() {
-  // textSize(28);
-  // text("Let's make the algo here", (windowWidth/2), (windowHeight/2));
-  // fill(255, 255, 255);
 
   fill(255);
   for (let i = 0; i < countries.length; i++) { // creating nodes (countries)
@@ -54,7 +53,7 @@ function drawStart() {
   }
 
 
-  //Draw the path between nodes (countries)
+  //Draw all path between nodes (countries)
   stroke(255);
   strokeWeight(2);
   noFill();
@@ -64,21 +63,31 @@ function drawStart() {
   }
   endShape();
 
+  //Draw the best current path between nodes (countries)
+  stroke(0,255,0);
+  strokeWeight(3);
+  noFill();
+  beginShape();
+  for (let i = 0; i < countries.length; i++) {
+    vertex(bestPath[i].x, bestPath[i].y);
+  }
+  endShape();
+
   //Test all the possible path between nodes
   let a = floor(random(countries.length));
   let b = floor(random(countries.length));
   cross(countries, a, b); //Change the order of the countries array
 
   let distance = getDistance(countries);
-  if(distance < bestPath){
-    bestPath = distance;
-    console.log(bestPath);
+  if(distance < bestDistance){
+    bestDistance = distance;
+    // console.log(bestDistance);
   }
 
   //Display best current distance
-  textSize(28);
-  text("Best path: "+ bestPath, (windowWidth/2), 10);
   fill(255, 255, 255);
+  textSize(28);
+  text("Best path: "+ bestDistance, (windowWidth/2), 10);
 }
 
 //Allow to change the order of a given array 
