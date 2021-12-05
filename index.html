@@ -1,20 +1,169 @@
 <html>
   <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- import the p5 library and out tsp script-->
-  <script language="javascript" type="text/javascript" src="libraries/p5.min.js"></script>
-  <script language="javascript" type="text/javascript" src="tsp.js"></script>
+    <!-- import the p5 library, chart.js library and tsp script-->
+    <script
+      language="javascript"
+      type="text/javascript"
+      src="libraries/p5.min.js"
+    ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.6.0/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
 
-    <style> 
-      body { 
-        padding: 0; 
-        margin: 0;
-      } 
-    </style>
+    <script language="javascript" type="text/javascript" src="tsp.js"></script>
+    <script>
+      function loadData() {
+        //Load every data that we want to display on screen
+        document.getElementById("Nodes").innerHTML = numberOfCountries;
+        document.getElementById("PopulationSize").innerHTML = popSize;
+        document.getElementById("CurrentRecord").innerHTML = recordDistance;
+        let mutationRatePercent = mutationRateValue * 100;
+        document.getElementById("MutationRate").innerHTML = mutationRatePercent;
+        document.getElementById("TimeSpend").innerHTML = time;
+        document.getElementById("TimeSaved").innerHTML = timeSaved;
+        addData(myChartLine, savedDistance, 0);
+        setTimeout(loadData, 1000); //update data every 1000 milliseconds (1 second)
+      }
+    </script>
   </head>
 
-  <body></body>
-  
+  <body onload="loadData()" style="display: flex; margin: 0; padding: 0">
+    <div id="whole_algorithm"></div>
+
+    <div>
+      <button id="update" onclick="loadData()">Update Data</button>
+      <h4>The number of countries is : <span id="Nodes"></span></h4>
+      <h4>The population size is : <span id="PopulationSize"></span></h4>
+      <h4>Best current distance : <span id="CurrentRecord"></span></h4>
+      <h4>Mutation Rate of : <span id="MutationRate"></span>%</h4>
+      <h4>Time at last best path : <span id="TimeSpend"></span> seconds</h4>
+      <h4>
+        Time taken for each new best record : <span id="TimeSaved"></span>
+      </h4>
+      <br />
+
+      <div style="width: 400px">
+        <canvas id="myChartLine"></canvas>
+      </div>
+      <div style="width: 50%; height: 50%">
+        <canvas id="myChartPie"></canvas>
+        <button id="download-button">Download Report</button>
+      </div>
+    </div>
+
+    <script>
+      var ctx = document.getElementById("myChartLine").getContext("2d");
+      var myChartLine = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: savedDistance,
+          backgroundColor: "#73BFB8",
+          datasets: [
+            {
+              label: "Distance",
+              borderColor: "rgb(119,255,51)",
+              pointHoverBorderColor: "rgb(255,0,0)",
+              // pointBorderColor: gradientStroke,
+              pointRadius: 5,
+              pointHoverRadius: 6,
+
+              pointBackgroundColor: "rgb(119,255,51)",
+              pointHoverBackgroundColor: "rgb(255,0,0)",
+              // tension: 0.8,
+              pointHoverBorderWidth: 1,
+              // pointBorderWidth: 5,
+              fill: true,
+              backgroundColor: "rgba(119,255,51,0.2)",
+              borderWidth: 2,
+              data: savedDistance,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          legend: {
+            position: "top",
+          },
+          scales: {
+            yAxes: [
+              {
+                ticks: {
+                  fontColor: "rgba(255,255,255,0.5)",
+                  fontStyle: "bold",
+                  beginAtZero: true,
+                  steps: 100,
+                  stepValue: 5,
+                  // max: 1500000,
+                  maxTicksLimit: 5,
+                  padding: 20,
+                },
+                gridLines: {
+                  drawTicks: false,
+                  display: false,
+                },
+              },
+            ],
+            xAxes: [
+              {
+                gridLines: {
+                  zeroLineColor: "rgba(255,255,255,0.5)",
+                },
+                ticks: {
+                  padding: 20,
+                  fontColor: "rgba(255,255,255,0.5)",
+                  fontStyle: "bold",
+                },
+              },
+            ],
+          },
+        },
+      });
+      function addData(chart, data, datasetIndex) {
+        chart.data.datasets[datasetIndex].data = data;
+        chart.update();
+      }
+      //for download
+      // Trigger the download
+      document.getElementById("download-button").onclick = function () {
+        // var a = document.createElement('a');
+        // a.href = myChartLine.toBase64Image();
+        // a.download = 'generated_chart.png';
+        // a.click();
+
+        // pdf
+        window.jsPDF = window.jspdf.jsPDF;
+
+        //Export report of analysis
+        const doc = new jsPDF();
+
+        doc.text("REPORT : ", 88, 10);
+
+        doc.text("Number of countries : ", 10, 20);
+        doc.text(numberOfCountries.toString(), 70, 20, "center");
+
+        doc.text("Population size : ", 10, 30);
+        doc.text(popSize.toString(), 55, 30, "center");
+
+        doc.text("Current best distance : ", 10, 40);
+        doc.text(recordDistance.toString(), 110, 40, "center");
+
+        doc.text("Mutation Rate : ", 10, 50);
+        doc.text((mutationRateValue*100).toString() + "%", 65, 50, "center");
+
+        doc.text("Time spend to find the best path : ", 10, 60);
+        doc.text(time.toString() + " seconds", 115, 60, "center");
+
+        doc.text("Time between each new best path found : ", 10, 70);
+        doc.text(timeSaved.toString(), 140, 70, "center");
+
+        let img = myChartLine.toBase64Image();
+        doc.addImage(img, "png", 20, 70, 125, 75);
+
+        doc.save("Report.pdf");
+      };
+    </script>
+    <!-- </div> -->
+  </body>
 </html>
