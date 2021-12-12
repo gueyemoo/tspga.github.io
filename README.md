@@ -1,5 +1,5 @@
-# TSP-with-Genetic-Algorithm
-This algorithm solve the traveling salesperson problem with genetic algorithm.
+# TSP solved with Genetic Algorithm
+This algorithm solve the traveling salesperson problem (TSP) with genetic algorithm.
 
 # Functionnalities
  - Realtime chart evolution while the algorithm solve the problem
